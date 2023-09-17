@@ -97,6 +97,7 @@ class Order extends BaseModel
     {
         return [
             self::AUTOMATIC_DELIVERY => admin_trans('goods.fields.automatic_delivery'),
+            self::AUTOMATIC_WEBSITE => admin_trans('goods.fields.automatic_website'),
             self::MANUAL_PROCESSING => admin_trans('goods.fields.manual_processing')
         ];
     }

@@ -52,6 +52,10 @@
                                                 <span class="small-tips tips-green">
                                                     {{ __('goods.fields.automatic_delivery') }}
                                                 </span>
+                                            @elseif($order['type'] == \App\Models\Order::AUTOMATIC_WEBSITE)
+                                                <span class="small-tips tips-green">
+                                                    {{ __('goods.fields.automatic_website') }}
+                                                </span>
                                             @else
                                                 <span class="small-tips tips-green">
                                                     {{ __('goods.fields.manual_processing') }}

@@ -10,6 +10,7 @@ use Illuminate\Database\DatabaseServiceProvider;
 use Illuminate\Database\QueryException;
 use Illuminate\Encryption\Encrypter;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
@@ -76,7 +77,10 @@ class HomeController extends BaseController
                 $client = Pay::PAY_CLIENT_MOBILE;
             }
             $formatGoods->payways = $this->payService->pays($client);
-            return $this->render('static_pages/buy', $formatGoods, $formatGoods->gd_name);
+            if ($goods->type == \App\Models\Goods::AUTOMATIC_WEBSITE)
+                return $this->render('static_pages/buywebsite', $formatGoods, $formatGoods->gd_name);
+            else
+                return $this->render('static_pages/buy', $formatGoods, $formatGoods->gd_name);
         } catch (RuleValidationException $ruleValidationException) {
             return $this->err($ruleValidationException->getMessage());
         }

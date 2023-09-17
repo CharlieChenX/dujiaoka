@@ -23,6 +23,7 @@ return [
         'type' => '商品類型',
         'buy_limit_num' => '限製單次購買最大數量',
         'wholesale_price_cnf' => '批發價配置',
+        'automatic_website' => '自動部署',
         'automatic_delivery' => '自動發貨',
         'manual_processing' => '人工處理',
         'is_open' => '是否上架',

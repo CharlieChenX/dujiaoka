@@ -406,6 +406,8 @@ class OrderProcessService
             // 自动发货
             if ($order->type == Order::AUTOMATIC_DELIVERY) {
                 $completedOrder = $this->processAuto($order);
+            } elseif ($order->type == Order::AUTOMATIC_WEBSITE) {
+                $completedOrder = $this->processWebSite($order);
             } else {
                 $completedOrder = $this->processManual($order);
             }
@@ -455,6 +457,41 @@ class OrderProcessService
         $order->save();
         // 商品库存减去
         $this->goodsService->inStockDecr($order->goods_id, $order->buy_amount);
+        // 邮件数据
+        $mailData = [
+            'created_at' => $order->create_at,
+            'product_name' => $order->goods->gd_name,
+            'webname' => dujiaoka_config_get('text_logo', '独角数卡'),
+            'weburl' => config('app.url') ?? 'http://dujiaoka.com',
+            'ord_info' => str_replace(PHP_EOL, '<br/>', $order->info),
+            'ord_title' => $order->title,
+            'order_id' => $order->order_sn,
+            'buy_amount' => $order->buy_amount,
+            'ord_price' => $order->actual_price,
+            'created_at' => $order->created_at,
+        ];
+        $tpl = $this->emailtplService->detailByToken('manual_send_manage_mail');
+        $mailBody = replace_mail_tpl($tpl, $mailData);
+        $manageMail = dujiaoka_config_get('manage_email', '');
+        // 邮件发送
+        MailSend::dispatch($manageMail, $mailBody['tpl_name'], $mailBody['tpl_content']);
+        return $order;
+    }
+
+    public function processWebSite(Order $order)
+    {
+        // 以PHP_EOL拆分infio字符串
+        $webinfo =  explode(PHP_EOL, $order->info);
+        // if (count($carmis) != $order->buy_amount) {
+        //     $order->info = __('dujiaoka.prompt.order_carmis_insufficient_quantity_available');
+        //     $order->status = Order::STATUS_ABNORMAL;
+        //     $order->save();
+        //     return $order;
+        // }
+        $order->info = $webinfo['1'];
+        $order->status = Order::STATUS_COMPLETED;
+        // 保存订单
+        $order->save();
         // 邮件数据
         $mailData = [
             'created_at' => $order->create_at,

@@ -38,6 +38,7 @@ class GoodsController extends AdminController
                 ->using(GoodsModel::getGoodsTypeMap())
                 ->label([
                     GoodsModel::AUTOMATIC_DELIVERY => Admin::color()->success(),
+                    GoodsModel::AUTOMATIC_WEBSITE => Admin::color()->success(),
                     GoodsModel::MANUAL_PROCESSING => Admin::color()->info(),
                 ]);
             $grid->column('retail_price');
@@ -103,6 +104,8 @@ class GoodsController extends AdminController
             $show->field('type')->as(function ($type) {
                 if ($type == GoodsModel::AUTOMATIC_DELIVERY) {
                     return admin_trans('goods.fields.automatic_delivery');
+                } elseif ($type == GoodsModel::AUTOMATIC_WEBSITE) {
+                    return admin_trans('goods.fields.automatic_website');
                 } else {
                     return admin_trans('goods.fields.manual_processing');
                 }

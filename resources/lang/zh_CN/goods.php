@@ -24,6 +24,7 @@ return [
         'buy_limit_num' => '限制单次购买最大数量',
         'wholesale_price_cnf' => '批发价配置',
         'automatic_delivery' => '自动发货',
+        'automatic_website' => '自动部署',
         'manual_processing' => '人工处理',
         'is_open' => '是否上架',
         'coupon_id' => '可用优惠码'

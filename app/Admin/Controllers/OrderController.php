@@ -34,6 +34,7 @@ class OrderController extends AdminController
             $grid->column('type')->using(OrderModel::getTypeMap())
                 ->label([
                     OrderModel::AUTOMATIC_DELIVERY => Admin::color()->success(),
+                    OrderModel::AUTOMATIC_WEBSITE => Admin::color()->success(),
                     OrderModel::MANUAL_PROCESSING => Admin::color()->info(),
                 ]);
             $grid->column('email')->copyable();

@@ -197,6 +197,25 @@ class OrderService
                 $otherIpt .= $item['desc'].':'.$request->input($item['field']) . PHP_EOL;
             }
         }
+        elseif ($goods->type == Goods::AUTOMATIC_WEBSITE)
+        {
+            $hostname = $request->input('hostname', '');
+            $sshuser = $request->input('sshuser', '');
+            $sshverify = $request->input('sshverify');
+            $sshmethod = $request->input('sshmethod');
+            if (empty($hostname) || empty($sshuser) || empty($sshverify) || empty($sshmethod))
+                throw new RuleValidationException(__('dujiaoka.prompt.can_not_be_empty'));
+            if ($sshmethod != 'password' && $sshmethod != 'key')
+                throw new RuleValidationException(__('dujiaoka.prompt.can_not_be_empty'));
+            if ($sshuser != 'root')
+                throw new RuleValidationException(__('dujiaoka.prompt.can_not_be_empty'));
+            $domain = $request->input('domain', '');
+            // 暂存为json格式
+            $otherIpt .= '服务器IP:'.$hostname . PHP_EOL;
+            $otherIpt .= 'SSH账号:'.$sshuser . PHP_EOL;
+            $otherIpt .= 'SSH密码:'.$sshverify . PHP_EOL;
+            $otherIpt .= 'SSH方式:'.$sshmethod . PHP_EOL;
+        }
         return $otherIpt;
     }
 

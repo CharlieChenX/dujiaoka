@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="/assets/luna/layui/css/layui.css">
     <link rel="stylesheet" href="/assets/luna/main.css">
     <link rel="shortcut icon" href="/assets/style/favicon.ico" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css">
     @if(\request()->getScheme() == "https")
         <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     @endif
