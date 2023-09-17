@@ -31,6 +31,7 @@ class GoodsController extends AdminController
             $grid->column('id')->sortable();
             $grid->column('picture')->image('', 100, 100);
             $grid->column('gd_name');
+            $grid->column('gd_code');
             $grid->column('gd_description');
             $grid->column('gd_keywords');
             $grid->column('group.gp_name', admin_trans('goods.fields.group_id'));
@@ -38,7 +39,7 @@ class GoodsController extends AdminController
                 ->using(GoodsModel::getGoodsTypeMap())
                 ->label([
                     GoodsModel::AUTOMATIC_DELIVERY => Admin::color()->success(),
-                    GoodsModel::AUTOMATIC_WEBSITE => Admin::color()->success(),
+                    GoodsModel::AUTOMATIC_DEPLOY => Admin::color()->success(),
                     GoodsModel::MANUAL_PROCESSING => Admin::color()->info(),
                 ]);
             $grid->column('retail_price');
@@ -93,6 +94,7 @@ class GoodsController extends AdminController
         return Show::make($id, new Goods(), function (Show $show) {
             $show->id('id');
             $show->field('gd_name');
+            $show->field('gd_code');
             $show->field('gd_description');
             $show->field('gd_keywords');
             $show->field('picture')->image();
@@ -104,8 +106,8 @@ class GoodsController extends AdminController
             $show->field('type')->as(function ($type) {
                 if ($type == GoodsModel::AUTOMATIC_DELIVERY) {
                     return admin_trans('goods.fields.automatic_delivery');
-                } elseif ($type == GoodsModel::AUTOMATIC_WEBSITE) {
-                    return admin_trans('goods.fields.automatic_website');
+                } elseif ($type == GoodsModel::AUTOMATIC_DEPLOY) {
+                    return admin_trans('goods.fields.automatic_deploy');
                 } else {
                     return admin_trans('goods.fields.manual_processing');
                 }
@@ -139,6 +141,7 @@ class GoodsController extends AdminController
         return Form::make(new Goods(), function (Form $form) {
             $form->display('id');
             $form->text('gd_name')->required();
+            $form->text('gd_code');
             $form->text('gd_description')->required();
             $form->text('gd_keywords')->required();
             $form->select('group_id')->options(

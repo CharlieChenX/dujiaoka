@@ -19,7 +19,7 @@ class BaseModel extends Model
 
     const AUTOMATIC_DELIVERY = 1; // 自动发货
     const MANUAL_PROCESSING = 2; // 人工处理
-    const AUTOMATIC_WEBSITE = 3; // 自动建站
+    const AUTOMATIC_DEPLOY = 3; // 自动建站
 
     /**
      * map

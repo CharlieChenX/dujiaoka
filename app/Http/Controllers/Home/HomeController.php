@@ -77,7 +77,7 @@ class HomeController extends BaseController
                 $client = Pay::PAY_CLIENT_MOBILE;
             }
             $formatGoods->payways = $this->payService->pays($client);
-            if ($goods->type == \App\Models\Goods::AUTOMATIC_WEBSITE)
+            if ($goods->type == \App\Models\Goods::AUTOMATIC_DEPLOY)
                 return $this->render('static_pages/buywebsite', $formatGoods, $formatGoods->gd_name);
             else
                 return $this->render('static_pages/buy', $formatGoods, $formatGoods->gd_name);

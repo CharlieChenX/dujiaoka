@@ -24,6 +24,7 @@ return [
         'trade_no' => '第三方支付訂單號',
         'type' => '訂單類型',
         'wholesale_discount_price' => '批發價折扣',
+        'status_prechecking' => '檢測服務器',
         'status_wait_pay' => '待支付',
         'status_pending' => '待處理',
         'status_processing' => '處理中',

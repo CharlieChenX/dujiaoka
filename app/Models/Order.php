@@ -43,6 +43,11 @@ class Order extends BaseModel
     const STATUS_EXPIRED = -1;
 
     /**
+     * 正在检测提交的表单
+     */
+    const STATUS_PRECHECKING = 18;
+
+    /**
      * 异常
      */
     const STATUS_ABNORMAL = 6;
@@ -74,6 +79,7 @@ class Order extends BaseModel
     public static function getStatusMap()
     {
         return [
+            self::STATUS_PRECHECKING => admin_trans('order.fields.status_prechecking'),
             self::STATUS_WAIT_PAY => admin_trans('order.fields.status_wait_pay'),
             self::STATUS_PENDING => admin_trans('order.fields.status_pending'),
             self::STATUS_PROCESSING => admin_trans('order.fields.status_processing'),
@@ -97,7 +103,7 @@ class Order extends BaseModel
     {
         return [
             self::AUTOMATIC_DELIVERY => admin_trans('goods.fields.automatic_delivery'),
-            self::AUTOMATIC_WEBSITE => admin_trans('goods.fields.automatic_website'),
+            self::AUTOMATIC_DEPLOY => admin_trans('goods.fields.automatic_deploy'),
             self::MANUAL_PROCESSING => admin_trans('goods.fields.manual_processing')
         ];
     }

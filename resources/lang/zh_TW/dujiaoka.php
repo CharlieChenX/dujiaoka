@@ -141,6 +141,7 @@ return [
 
     'page-title' => [
         'home' => '首頁',
+        'hostchecking' => '服務器檢測',
         'bill' => '訂單確認',
         'order-detail' => '訂單詳情',
         'order-search' => '訂單查詢'

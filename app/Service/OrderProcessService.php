@@ -12,16 +12,16 @@ namespace App\Service;
 use App\Exceptions\RuleValidationException;
 use App\Jobs\ApiHook;
 use App\Jobs\MailSend;
-use App\Jobs\OrderExpired;
 use App\Jobs\ServerJiang;
 use App\Jobs\TelegramPush;
 use App\Jobs\BarkPush;
+use App\Jobs\WebsiteDeploy;
 use App\Jobs\WorkWeiXinPush;
 use App\Models\BaseModel;
 use App\Models\Coupon;
 use App\Models\Goods;
+use App\Models\DeployOrder;
 use App\Models\Order;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -87,6 +87,8 @@ class OrderProcessService
      * @var string
      */
     private $otherIpt;
+
+    private $deployInfo;
 
     /**
      * 购买数量
@@ -201,6 +203,11 @@ class OrderProcessService
     public function setCoupon(?Coupon $coupon)
     {
         $this->coupon = $coupon;
+    }
+
+    public function setDeployInfo(array $deployInfo)
+    {
+        $this->deployInfo = $deployInfo;
     }
 
     /**
@@ -350,8 +357,16 @@ class OrderProcessService
                 $this->calculateTheCouponPrice(),
                 $this->calculateTheWholesalePrice()
             );
+            // 支付前要先检查目标服务器是否正常
+            if ($this->goods->type == Goods::AUTOMATIC_DEPLOY)
+                $order->status = Order::STATUS_PRECHECKING;
+            else
+                $order->status = Order::STATUS_WAIT_PAY;
             // 保存订单
             $order->save();
+            // 创建服务器部署订单
+            if ($this->goods->type == Goods::AUTOMATIC_DEPLOY)
+                $this->createDeployOrder($order);
             // 如果有用到优惠券
             if ($this->coupon) {
                 // 设置优惠码已经使用
@@ -359,9 +374,6 @@ class OrderProcessService
                 // 使用次数-1
                 $this->couponService->retDecr($this->coupon->coupon);
             }
-            // 将订单加入队列 x分钟后过期
-            $expiredOrderDate = dujiaoka_config_get('order_expire_time', 5);
-            OrderExpired::dispatch($order->order_sn)->delay(Carbon::now()->addMinutes($expiredOrderDate));
             return $order;
         } catch (\Exception $exception) {
             throw new RuleValidationException($exception->getMessage());
@@ -369,6 +381,20 @@ class OrderProcessService
 
     }
 
+    private function createDeployOrder(Order $order)
+    {
+        $deployOrder = new DeployOrder();
+        $deployOrder->order_id = $order->id;
+        $deployOrder->order_sn = $order->order_sn;
+        $deployOrder->app_name = $this->deployInfo['app_name'];
+        $deployOrder->ssh_host = $this->deployInfo['ssh_host'];
+        $deployOrder->ssh_port = $this->deployInfo['ssh_port'];
+        $deployOrder->ssh_user = $this->deployInfo['ssh_user'];
+        $deployOrder->ssh_verify = $this->deployInfo['ssh_verify'];
+        $deployOrder->ssh_method = intval($this->deployInfo['ssh_method']);
+        $deployOrder->website_domain = $this->deployInfo['website_domain'];
+        $deployOrder->save();
+    }
 
     /**
      * 订单成功方法
@@ -406,7 +432,7 @@ class OrderProcessService
             // 自动发货
             if ($order->type == Order::AUTOMATIC_DELIVERY) {
                 $completedOrder = $this->processAuto($order);
-            } elseif ($order->type == Order::AUTOMATIC_WEBSITE) {
+            } elseif ($order->type == Order::AUTOMATIC_DEPLOY) {
                 $completedOrder = $this->processWebSite($order);
             } else {
                 $completedOrder = $this->processManual($order);
@@ -481,35 +507,17 @@ class OrderProcessService
     public function processWebSite(Order $order)
     {
         // 以PHP_EOL拆分infio字符串
-        $webinfo =  explode(PHP_EOL, $order->info);
         // if (count($carmis) != $order->buy_amount) {
         //     $order->info = __('dujiaoka.prompt.order_carmis_insufficient_quantity_available');
         //     $order->status = Order::STATUS_ABNORMAL;
         //     $order->save();
         //     return $order;
         // }
-        $order->info = $webinfo['1'];
-        $order->status = Order::STATUS_COMPLETED;
+        $order->status = Order::STATUS_PROCESSING;
         // 保存订单
         $order->save();
-        // 邮件数据
-        $mailData = [
-            'created_at' => $order->create_at,
-            'product_name' => $order->goods->gd_name,
-            'webname' => dujiaoka_config_get('text_logo', '独角数卡'),
-            'weburl' => config('app.url') ?? 'http://dujiaoka.com',
-            'ord_info' => str_replace(PHP_EOL, '<br/>', $order->info),
-            'ord_title' => $order->title,
-            'order_id' => $order->order_sn,
-            'buy_amount' => $order->buy_amount,
-            'ord_price' => $order->actual_price,
-            'created_at' => $order->created_at,
-        ];
-        $tpl = $this->emailtplService->detailByToken('manual_send_manage_mail');
-        $mailBody = replace_mail_tpl($tpl, $mailData);
-        $manageMail = dujiaoka_config_get('manage_email', '');
-        // 邮件发送
-        MailSend::dispatch($manageMail, $mailBody['tpl_name'], $mailBody['tpl_content']);
+
+        WebsiteDeploy::dispatch($order->order_sn);
         return $order;
     }
 

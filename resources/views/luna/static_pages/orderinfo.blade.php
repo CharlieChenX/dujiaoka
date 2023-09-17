@@ -52,9 +52,9 @@
                                                 <span class="small-tips tips-green">
                                                     {{ __('goods.fields.automatic_delivery') }}
                                                 </span>
-                                            @elseif($order['type'] == \App\Models\Order::AUTOMATIC_WEBSITE)
+                                            @elseif($order['type'] == \App\Models\Order::AUTOMATIC_DEPLOY)
                                                 <span class="small-tips tips-green">
-                                                    {{ __('goods.fields.automatic_website') }}
+                                                    {{ __('goods.fields.automatic_deploy') }}
                                                 </span>
                                             @else
                                                 <span class="small-tips tips-green">

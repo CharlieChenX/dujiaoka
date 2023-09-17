@@ -15,6 +15,7 @@
         "fideloper/proxy": "^4.4",
         "germey/geetest": "^3.1",
         "jenssegers/agent": "^2.6",
+        "kris/laravel-form-builder": "^1.52",
         "laravel/framework": "^6.20.26",
         "laravel/tinker": "^2.5",
         "mews/captcha": "^3.2",

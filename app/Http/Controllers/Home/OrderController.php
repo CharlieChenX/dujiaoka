@@ -9,6 +9,9 @@ use App\Service\OrderProcessService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\DB;
+use App\Jobs\OrderExpired;
+use App\Jobs\HostChecking;
+use Carbon\Carbon;
 
 
 /**
@@ -69,6 +72,9 @@ class OrderController extends BaseController
             $this->orderProcessService->setCoupon($coupon);
             $otherIpt = $this->orderService->validatorChargeInput($goods, $request);
             $this->orderProcessService->setOtherIpt($otherIpt);
+            // 部署服务器信息
+            $deployInfo = $this->orderService->validatorDeployHost($goods, $request);
+            $this->orderProcessService->setDeployInfo($deployInfo);
             // 数量
             $this->orderProcessService->setBuyAmount($request->input('by_amount'));
             // 支付方式
@@ -84,6 +90,14 @@ class OrderController extends BaseController
             DB::commit();
             // 设置订单cookie
             $this->queueCookie($order->order_sn);
+            if ($order->status == Order::STATUS_PRECHECKING)
+            {
+                HostChecking::dispatch($order->order_sn)->delay(Carbon::now()->addSeconds(5));
+                return redirect(url('/hostchecking', ['orderSN' => $order->order_sn]));
+            }
+            // 将订单加入队列 x分钟后过期
+            $expiredOrderDate = dujiaoka_config_get('order_expire_time', 5);
+            OrderExpired::dispatch($order->order_sn)->delay(Carbon::now()->addMinutes($expiredOrderDate));
             return redirect(url('/bill', ['orderSN' => $order->order_sn]));
         } catch (RuleValidationException $exception) {
             DB::rollBack();
@@ -108,6 +122,27 @@ class OrderController extends BaseController
         }
     }
 
+    /**
+     * 检查目标服务器是否正常
+     *
+     * @param string $orderSN
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     *
+     * @author    assimon<ashang@utf8.hk>
+     * @copyright assimon<ashang@utf8.hk>
+     * @link      http://utf8.hk/
+     */
+    public function hostChecking(string $orderSN)
+    {
+        $order = $this->orderService->detailOrderSN($orderSN);
+        if (empty($order)) {
+            return $this->err(__('dujiaoka.prompt.order_does_not_exist'));
+        }
+        if ($order->status != Order::STATUS_PRECHECKING) {
+            return $this->err(__('dujiaoka.prompt.order_is_expired'));
+        }
+        return $this->render('static_pages/hostchecking', $order, __('dujiaoka.page-title.hostchecking'));
+    }
     /**
      * 结账
      *
@@ -147,6 +182,9 @@ class OrderController extends BaseController
         // 订单不存在或者已经过期
         if (!$order || $order->status == Order::STATUS_EXPIRED) {
             return response()->json(['msg' => 'expired', 'code' => 400001]);
+        }
+        if ($order->status == Order::STATUS_PRECHECKING) {
+            return response()->json(['msg' => 'hostchecking', 'code' => 400010]);
         }
         // 订单已经支付
         if ($order->status == Order::STATUS_WAIT_PAY) {

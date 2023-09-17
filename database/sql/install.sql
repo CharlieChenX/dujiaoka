@@ -333,6 +333,7 @@ CREATE TABLE `goods` (
   `id` int NOT NULL AUTO_INCREMENT,
   `group_id` int NOT NULL COMMENT '所属分类id',
   `gd_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '商品名称',
+  `gd_code` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '商品代码',
   `gd_description` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '商品描述',
   `gd_keywords` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '商品关键字',
   `picture` text CHARACTER SET utf8 COLLATE utf8_unicode_ci COMMENT '商品图片',
@@ -432,6 +433,30 @@ CREATE TABLE `orders` (
   KEY `idx_goods_id` (`goods_id`) USING BTREE,
   KEY `idex_email` (`email`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci COMMENT='订单表';
+
+DROP TABLE IF EXISTS `orders_deploy`;
+CREATE TABLE `orders_deploy` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `order_id` bigint NOT NULL COMMENT '关联订单id',
+  `order_sn` varchar(150) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL COMMENT '订单号',
+  `ssh_host` varchar(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL COMMENT '部署服务器地址',
+  `ssh_port` int NOT NULL DEFAULT '22' COMMENT '部署服务器端口',
+  `ssh_user` varchar(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT 'root' COMMENT '部署服务器用户名',
+  `ssh_verify` varchar(3000) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL COMMENT '部署服务器密码',
+  `ssh_method` tinyint(1) NOT NULL DEFAULT '1' COMMENT '部署服务器认证方式 1密码 2密钥',
+  `app_name` varchar(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL COMMENT '部署应用名称',
+  `app_version` varchar(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci COMMENT '部署应用版本',
+  `website_domain` varchar(1000) CHARACTER SET utf8 COLLATE utf8_unicode_ci COMMENT '部署应用域名',
+  `advanced` text CHARACTER SET utf8 COLLATE utf8_unicode_ci COMMENT '高级配置',
+  `log` text CHARACTER SET utf8 COLLATE utf8_unicode_ci COMMENT '部署日志',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_order_sn` (`order_sn`) USING BTREE,
+  KEY `idx_ssh_host` (`ssh_host`) USING BTREE,
+  KEY `idx_order_id` (`order_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci COMMENT='订单部署信息表';
 
 -- ----------------------------
 -- Records of orders

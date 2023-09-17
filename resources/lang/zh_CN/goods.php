@@ -12,6 +12,7 @@ return [
         'buy_prompt' => '购买提示',
         'description' => '商品描述',
         'gd_name' => '商品名称',
+        'gd_code' => '商品代码',
         'gd_description' => '商品描述',
         'gd_keywords' => '商品关键字',
         'in_stock' => '库存',
@@ -24,7 +25,7 @@ return [
         'buy_limit_num' => '限制单次购买最大数量',
         'wholesale_price_cnf' => '批发价配置',
         'automatic_delivery' => '自动发货',
-        'automatic_website' => '自动部署',
+        'automatic_deploy' => '自动部署',
         'manual_processing' => '人工处理',
         'is_open' => '是否上架',
         'coupon_id' => '可用优惠码'

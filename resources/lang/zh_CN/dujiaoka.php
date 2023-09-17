@@ -142,6 +142,7 @@ return [
 
     'page-title' => [
         'home' => '首页',
+        'hostchecking' => '检查目标服务器',
         'bill' => '订单确认',
         'order-detail' => '订单详情',
         'order-search' => '订单查询'

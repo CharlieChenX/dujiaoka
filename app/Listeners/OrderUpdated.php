@@ -8,6 +8,8 @@ use App\Models\Order;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Events\OrderUpdated as OrderUpdatedEvent;
+use App\Jobs\OrderExpired;
+use Carbon\Carbon;
 
 class OrderUpdated
 {
@@ -47,6 +49,23 @@ class OrderUpdated
                 case Order::STATUS_PENDING:
                     $mailtpl = Emailtpl::query()->where('tpl_token', 'pending_order')->first()->toArray();
                     self::sendMailToOrderStatus($mailtpl, $order, $to);
+                    break;
+                case Order::STATUS_COMPLETED:
+                    $mailtpl = Emailtpl::query()->where('tpl_token', 'completed_order')->first()->toArray();
+                    self::sendMailToOrderStatus($mailtpl, $order, $to);
+                    break;
+                case Order::STATUS_FAILURE:
+                    $mailtpl = Emailtpl::query()->where('tpl_token', 'failed_order')->first()->toArray();
+                    self::sendMailToOrderStatus($mailtpl, $order, $to);
+                    break;
+            }
+        }
+        else if ($event->order->type == Order::AUTOMATIC_DEPLOY) {
+            switch ($event->order->status) {
+                case Order::STATUS_WAIT_PAY:
+                    // 将订单加入队列 x分钟后过期
+                    $expiredOrderDate = dujiaoka_config_get('order_expire_time', 5);
+                    OrderExpired::dispatch($event->order->order_sn)->delay(Carbon::now()->addMinutes($expiredOrderDate));
                     break;
                 case Order::STATUS_COMPLETED:
                     $mailtpl = Emailtpl::query()->where('tpl_token', 'completed_order')->first()->toArray();

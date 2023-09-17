@@ -16,6 +16,7 @@ use App\Models\Coupon;
 use App\Models\Goods;
 use App\Models\Carmis;
 use App\Models\Order;
+use App\Models\DeployOrder;
 use App\Rules\SearchPwd;
 use App\Rules\VerifyImg;
 use Illuminate\Http\Request;
@@ -197,26 +198,32 @@ class OrderService
                 $otherIpt .= $item['desc'].':'.$request->input($item['field']) . PHP_EOL;
             }
         }
-        elseif ($goods->type == Goods::AUTOMATIC_WEBSITE)
-        {
-            $hostname = $request->input('hostname', '');
-            $sshuser = $request->input('sshuser', '');
-            $sshverify = $request->input('sshverify');
-            $sshmethod = $request->input('sshmethod');
-            if (empty($hostname) || empty($sshuser) || empty($sshverify) || empty($sshmethod))
-                throw new RuleValidationException(__('dujiaoka.prompt.can_not_be_empty'));
-            if ($sshmethod != 'password' && $sshmethod != 'key')
-                throw new RuleValidationException(__('dujiaoka.prompt.can_not_be_empty'));
-            if ($sshuser != 'root')
-                throw new RuleValidationException(__('dujiaoka.prompt.can_not_be_empty'));
-            $domain = $request->input('domain', '');
-            // 暂存为json格式
-            $otherIpt .= '服务器IP:'.$hostname . PHP_EOL;
-            $otherIpt .= 'SSH账号:'.$sshuser . PHP_EOL;
-            $otherIpt .= 'SSH密码:'.$sshverify . PHP_EOL;
-            $otherIpt .= 'SSH方式:'.$sshmethod . PHP_EOL;
-        }
         return $otherIpt;
+    }
+
+    public function validatorDeployHost(Goods $goods, Request $request): array
+    {
+        $hostInfo = [];
+        if ($goods->type == Goods::AUTOMATIC_DEPLOY)
+        {
+            $hostInfo['app_name'] = $goods->gd_code;
+            $hostInfo['ssh_host'] = $request->input('ssh_host', '');
+            $hostInfo['ssh_port'] = 22;
+            $hostInfo['ssh_user'] = $request->input('ssh_user', '');
+            $hostInfo['ssh_verify'] = $request->input('ssh_verify');
+            $hostInfo['ssh_method'] = $request->input('ssh_method');
+            if (empty($hostInfo['app_name']) || empty($hostInfo['ssh_host']) 
+                || empty($hostInfo['ssh_user']) || empty($hostInfo['ssh_verify']))
+                throw new RuleValidationException(__('dujiaoka.prompt.can_not_be_empty'));
+
+            if ($hostInfo['ssh_method'] != '1' && $hostInfo['ssh_method'] != '2')
+                throw new RuleValidationException(__('dujiaoka.prompt.can_not_be_empty'));
+            
+            if ($hostInfo['ssh_user'] != 'root')
+                throw new RuleValidationException(__('dujiaoka.prompt.can_not_be_empty'));
+            $hostInfo['website_domain'] = $request->input('website_domain', '');
+        }
+        return $hostInfo;
     }
 
     /**
@@ -231,6 +238,12 @@ class OrderService
     public function detailOrderSN(string $orderSN):? Order
     {
         $order = Order::query()->with(['coupon', 'pay', 'goods'])->where('order_sn', $orderSN)->first();
+        return $order;
+    }
+
+    public function detailDeployOrderSN(string $orderSN):? DeployOrder
+    {
+        $order = DeployOrder::query()->where('order_sn', $orderSN)->first();
         return $order;
     }
 

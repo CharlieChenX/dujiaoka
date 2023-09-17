@@ -18,6 +18,8 @@ Route::group(['middleware' => ['dujiaoka.boot'],'namespace' => 'Home'], function
     Route::get('buy/{id}', 'HomeController@buy');
     // 提交订单
     Route::post('create-order', 'OrderController@createOrder');
+    // 检查目标服务器
+    Route::get('hostchecking/{orderSN}', 'OrderController@hostChecking');
     // 结算页
     Route::get('bill/{orderSN}', 'OrderController@bill');
     // 通过订单号详情页

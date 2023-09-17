@@ -25,6 +25,7 @@ return [
         'trade_no' => '第三方支付订单号',
         'type' => '订单类型',
         'wholesale_discount_price' => '批发价优惠',
+        'status_prechecking' => '检测服务器',
         'status_wait_pay' => '待支付',
         'status_pending' => '待处理',
         'status_processing' => '处理中',
