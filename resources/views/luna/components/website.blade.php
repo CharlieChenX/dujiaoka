@@ -22,5 +22,5 @@
 
 <div class="form-group">
     <label class="control-label">网站域名：</label>
-    <input type="text" name="website_domain" class="form-control" placeholder="例如:www.heli8.top">
+    <input type="text" name="website_domain" class="form-control" placeholder="例如:www.mateqq.com">
 </div>

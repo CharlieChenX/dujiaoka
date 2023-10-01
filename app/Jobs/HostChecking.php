@@ -60,17 +60,17 @@ class HostChecking implements ShouldQueue
             $deployInfo = app('Service\OrderService')->detailDeployOrderSN($this->orderSN);
             $fp = fsockopen($deployInfo->ssh_host, $deployInfo->ssh_port, $errno, $errstr, 3);
             if ($fp) {
-                $deployUrl = 'http://'.env('AUTO_DEPLOY_HOST').':'.env('AUTO_DEPLOY_PORT').'/AutoDeploy/rule';
+                $deployUrl = 'http://'.env('AUTO_DEPLOY_HOST').':'.env('AUTO_DEPLOY_PORT').'/AutoDeploy/role';
                 $req['ansible_host'] = $deployInfo->ssh_host;
                 $req['ansible_port'] = strval($deployInfo->ssh_port);
                 $req['ansible_user'] = $deployInfo->ssh_user;
                 $req['ansible_ssh_pass'] = $deployInfo->ssh_verify;
                 $req['ssh_method'] = strval($deployInfo->ssh_method);
-                $req['heli_app_name'] = 'role_check';
+                $req['mate_app_name'] = 'role_check';
                 // 转为json
                 $req = json_encode($req);
                 // 记录日志
-                Log::info('deployCheckReq: '.$req);
+                Log::info('deployCheckReq: ' .$req .'url: ' .$deployUrl);
 
                 // 发送http stream请求
                 $opts = array(
@@ -86,11 +86,11 @@ class HostChecking implements ShouldQueue
                     $result = '';
                     $fp = fopen($deployUrl, 'r', false, $context);
                     if ($fp) {
-                        while (!feof($fp)) {
-                            $line = fgets($fp);
-                            $result .= $line;
-                        }
-                        fclose($fp);
+                         while (!feof($fp)) {
+                             $line = fgets($fp);
+                             $result .= $line;
+                         }
+                         fclose($fp);
                     }
                     //$order->log = $result;
                     $order->status = Order::STATUS_WAIT_PAY;

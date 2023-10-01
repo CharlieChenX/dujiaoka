@@ -1,0 +1,15 @@
+version: "2.2"
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports: 
+      - "8080:80"
+    volumes:
+      - ../../:/mateqq_apps/mdujiaoka
+
+networks:
+  default:
+    name: mate
+    external: true

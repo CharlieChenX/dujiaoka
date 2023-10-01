@@ -2,7 +2,7 @@
 
 @section('content')
     <body>
-        hello
+        正在检测目标服务器,请不要刷新或关闭页面...
     </body>
 @endsection
 
@@ -18,6 +18,14 @@
                 if (res.code == 400001) {
                     window.clearTimeout(timer);
                     layer.alert("{{ __('dujiaoka.prompt.order_is_expired') }}", {
+                        icon: 2
+                    }, function () {
+                        window.location.href = '/'
+                    });
+                }
+                if (res.code == 400005) {
+                    window.clearTimeout(timer);
+                    layer.alert("目标服务器检查失败,请联系站长. ", {
                         icon: 2
                     }, function () {
                         window.location.href = '/'

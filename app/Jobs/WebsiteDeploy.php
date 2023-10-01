@@ -65,8 +65,10 @@ class WebsiteDeploy implements ShouldQueue
                 $req['ansible_user'] = $deployInfo->ssh_user;
                 $req['ansible_ssh_pass'] = $deployInfo->ssh_verify;
                 $req['ssh_method'] = strval($deployInfo->ssh_method);
-                $req['heli_app_name'] = $deployInfo->app_name;
-                $req['heli_app_version'] = '2.0.6';
+                $req['mate_app_name'] = $deployInfo->app_name;
+                $req['mate_app_version'] = '2.0.6';
+                $rep['mate_website_domain'] = $deployInfo->website_domain;
+                $req['mate_website_protocol'] = "http";
                 // 转为json
                 $req = json_encode($req);
                 // 记录日志
@@ -97,14 +99,14 @@ class WebsiteDeploy implements ShouldQueue
                     $order->save();
                 } catch (\Exception $e) {
                     //$order->log = $e->getMessage();
-                    Log::info('deployResult: '. $e->getMessage());
+                    Log::error('deployResult: '. $e->getMessage());
                     $order->status = Order::STATUS_FAILURE;
                     $order->save();
                     return;
                 }
             } else {
                 //$order->log = $errstr;
-                Log::info('deployResult: '. $errstr);
+                Log::error('deployResult: '. $errstr);
                 $order->status = Order::STATUS_FAILURE;
                 $order->save();
             }

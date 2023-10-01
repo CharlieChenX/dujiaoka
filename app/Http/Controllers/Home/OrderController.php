@@ -92,7 +92,7 @@ class OrderController extends BaseController
             $this->queueCookie($order->order_sn);
             if ($order->status == Order::STATUS_PRECHECKING)
             {
-                HostChecking::dispatch($order->order_sn)->delay(Carbon::now()->addSeconds(5));
+                HostChecking::dispatch($order->order_sn);
                 return redirect(url('/hostchecking', ['orderSN' => $order->order_sn]));
             }
             // 将订单加入队列 x分钟后过期
@@ -137,6 +137,12 @@ class OrderController extends BaseController
         $order = $this->orderService->detailOrderSN($orderSN);
         if (empty($order)) {
             return $this->err(__('dujiaoka.prompt.order_does_not_exist'));
+        }
+        if (($order->status == Order::STATUS_FAILURE)) {
+            return $this->err("目标服务器检查失败,请联系站长. ");
+        }
+        if ($order->status == Order::STATUS_WAIT_PAY) {
+            return redirect(url('/bill', ['orderSN' => $order->order_sn]));
         }
         if ($order->status != Order::STATUS_PRECHECKING) {
             return $this->err(__('dujiaoka.prompt.order_is_expired'));
@@ -189,6 +195,9 @@ class OrderController extends BaseController
         // 订单已经支付
         if ($order->status == Order::STATUS_WAIT_PAY) {
             return response()->json(['msg' => 'wait....', 'code' => 400000]);
+        }
+        if ($order->status == Order::STATUS_FAILURE) {
+            return response()->json(['msg' => 'failed', 'code' => 400005]);
         }
         // 成功
         if ($order->status > Order::STATUS_WAIT_PAY) {
