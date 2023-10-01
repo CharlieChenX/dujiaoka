@@ -1,6 +1,6 @@
 version: "2.2"
 services:
-  web:
+  mdujiaoka:
     build:
       context: .
       dockerfile: Dockerfile
@@ -29,7 +29,7 @@ services:
     depends_on:
       - web
 
-  db:
+  mdujiaoka-db:
     image: mysql:8.0-debian
     networks:
       - internal
@@ -39,12 +39,12 @@ services:
       - MYSQL_ROOT_PASSWORD=123456
     # port 3306 is exposed by default, so there is no need to do it again here
 
-  redis:
+  mdujiaoka-redis:
     image: redis:7.0.11
     networks:
       - internal
 
-  adminer:
+  mdujiaoka-adminer:
     image: adminer
     networks:
       - internal
