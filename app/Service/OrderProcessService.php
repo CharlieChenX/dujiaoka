@@ -433,7 +433,7 @@ class OrderProcessService
             if ($order->type == Order::AUTOMATIC_DELIVERY) {
                 $completedOrder = $this->processAuto($order);
             } elseif ($order->type == Order::AUTOMATIC_DEPLOY) {
-                $completedOrder = $this->processWebSite($order);
+                $completedOrder = $this->processAutoDeploy($order);
             } else {
                 $completedOrder = $this->processManual($order);
             }
@@ -504,7 +504,7 @@ class OrderProcessService
         return $order;
     }
 
-    public function processWebSite(Order $order)
+    public function processAutoDeploy(Order $order)
     {
         // 以PHP_EOL拆分infio字符串
         // if (count($carmis) != $order->buy_amount) {

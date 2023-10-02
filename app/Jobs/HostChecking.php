@@ -92,16 +92,19 @@ class HostChecking implements ShouldQueue
                          }
                          fclose($fp);
                     }
+                    Log::info('check resp: ' .$result);
                     //$order->log = $result;
                     $order->status = Order::STATUS_WAIT_PAY;
                     $order->save();
                 } catch (\Exception $e) {
                     //$order->log = $e->getMessage();
+                    Log::error('check failed2: ' .$e->getMessage());
                     $order->status = Order::STATUS_FAILURE;
                     $order->save();
                     return;
                 }
             } else {
+                Log::error('check failed1: ' .$errstr);
                 //$order->log = $errstr;
                 $order->status = Order::STATUS_FAILURE;
                 $order->save();

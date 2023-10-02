@@ -66,8 +66,8 @@ class WebsiteDeploy implements ShouldQueue
                 $req['ansible_ssh_pass'] = $deployInfo->ssh_verify;
                 $req['ssh_method'] = strval($deployInfo->ssh_method);
                 $req['mate_app_name'] = $deployInfo->app_name;
-                $req['mate_app_version'] = '2.0.6';
-                $rep['mate_website_domain'] = $deployInfo->website_domain;
+                $req['mate_app_version'] = '1.0';
+                $req['mate_website_domain'] = $deployInfo->website_domain;
                 $req['mate_website_protocol'] = "http";
                 // 转为json
                 $req = json_encode($req);
@@ -95,7 +95,7 @@ class WebsiteDeploy implements ShouldQueue
                     }
                     //$order->log = $result;
                     Log::info('deployResult: '.$result);
-                    $order->status = Order::STATUS_WAIT_PAY;
+                    $order->status = Order::STATUS_COMPLETED;
                     $order->save();
                 } catch (\Exception $e) {
                     //$order->log = $e->getMessage();
