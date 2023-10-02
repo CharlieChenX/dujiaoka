@@ -11,6 +11,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Order;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class WebsiteDeploy implements ShouldQueue
 {
@@ -95,8 +96,27 @@ class WebsiteDeploy implements ShouldQueue
                     }
                     //$order->log = $result;
                     Log::info('deployResult: '.$result);
-                    $order->status = Order::STATUS_COMPLETED;
-                    $order->save();
+                    // 字符串查找unreachable=0和failed=0
+                    $unreachable = strpos($result, 'unreachable=0');
+                    $failed = strpos($result, 'failed=0');
+                    if ($unreachable === false || $failed === false) {
+                        $order->status = Order::STATUS_FAILURE;
+                    }
+                    else {
+                        $order->status = Order::STATUS_COMPLETED;
+                    }
+                    DB::beginTransaction();
+                    try {
+                        $order->save();
+                        // 商品库存减去
+                        $goodsService = app('Service\GoodsService');
+                        $goodsService->inStockDecr($order->goods_id, 1);
+                        DB::commit();
+                    }
+                    catch (\Exception $e) {
+                        Log::error('deployResult: '. $e->getMessage());
+                        DB::rollBack();
+                    }
                 } catch (\Exception $e) {
                     //$order->log = $e->getMessage();
                     Log::error('deployResult: '. $e->getMessage());

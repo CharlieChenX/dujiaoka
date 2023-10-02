@@ -93,8 +93,15 @@ class HostChecking implements ShouldQueue
                          fclose($fp);
                     }
                     Log::info('check resp: ' .$result);
-                    //$order->log = $result;
-                    $order->status = Order::STATUS_WAIT_PAY;
+                    // 字符串查找unreachable=0和failed=0
+                    $unreachable = strpos($result, 'unreachable=0');
+                    $failed = strpos($result, 'failed=0');
+                    if ($unreachable === false || $failed === false) {
+                        $order->status = Order::STATUS_FAILURE;
+                    }
+                    else {
+                        $order->status = Order::STATUS_WAIT_PAY;
+                    }
                     $order->save();
                 } catch (\Exception $e) {
                     //$order->log = $e->getMessage();
