@@ -108,9 +108,11 @@ class WebsiteDeploy implements ShouldQueue
                     DB::beginTransaction();
                     try {
                         $order->save();
-                        // 商品库存减去
-                        $goodsService = app('Service\GoodsService');
-                        $goodsService->inStockDecr($order->goods_id, 1);
+                        if ($order->statuss == Order::STATUS_COMPLETED) {
+                            // 商品库存减去
+                            $goodsService = app('Service\GoodsService');
+                            $goodsService->inStockDecr($order->goods_id, 1);
+                        }
                         DB::commit();
                     }
                     catch (\Exception $e) {
