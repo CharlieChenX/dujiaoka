@@ -7,7 +7,7 @@ services:
     ports: 
       - "8080:80"
     volumes:
-      - ../../:/mate_apps/mdujiaoka
+      - ../../:/hw_apps/mdujiaoka
 
 networks:
   default:
