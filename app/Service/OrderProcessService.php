@@ -513,6 +513,7 @@ class OrderProcessService
         //     $order->save();
         //     return $order;
         // }
+        $order->info = "喝杯奶茶休息片刻,网站搭建完成后会邮件通知到您.";
         $order->status = Order::STATUS_PROCESSING;
         // 保存订单
         $order->save();

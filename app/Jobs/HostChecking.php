@@ -58,7 +58,15 @@ class HostChecking implements ShouldQueue
         $order = app('Service\OrderService')->detailOrderSN($this->orderSN);
         if ($order && $order->status == Order::STATUS_PRECHECKING) {
             $deployInfo = app('Service\OrderService')->detailDeployOrderSN($this->orderSN);
-            $fp = fsockopen($deployInfo->ssh_host, $deployInfo->ssh_port, $errno, $errstr, 3);
+            $fp = null; 
+            try{
+                $fp = fsockopen($deployInfo->ssh_host, $deployInfo->ssh_port, $errno, $errstr, 3);
+            } catch (\Exception $e) {
+                Log::error('check failed3: ' .$e->getMessage());
+                $order->status = Order::STATUS_FAILURE;
+                $order->save();
+                return;
+            }
             if ($fp) {
                 $deployUrl = 'http://'.env('AUTO_DEPLOY_HOST').':'.env('AUTO_DEPLOY_PORT').'/AutoDeploy/role';
                 $req['ansible_host'] = $deployInfo->ssh_host;
